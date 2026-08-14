@@ -377,7 +377,9 @@ export const meta = {
   title: `${BRAND} | Booked Projects for Canadian Drafting Firms`,
   description:
     "We build the ads, landing page, and booking system that fill Canadian drafting firms' calendars with qualified consults on autopilot. 3× return guarantee, no lock-in contracts.",
-  /** PRD §13 — set to the production origin before deploy. */
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com",
+  /** Public URL of the deployed site, used for canonical/OG tags and the
+   *  sitemap. Includes the /service-lp subpath because GitHub Pages serves
+   *  project sites from a repo-named directory. */
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://havinfun47.github.io/service-lp",
   ogImageAlt: `${BRAND} — booked projects for Canadian drafting firms`,
 } as const;

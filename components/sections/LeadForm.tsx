@@ -10,6 +10,17 @@ import { qualify } from "@/content/copy";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+/**
+ * Where leads are posted. On a static GitHub Pages build there is no server, so
+ * the browser posts directly to a third-party form endpoint (Formspree, a
+ * Zapier/Make catch hook, a CRM inbound URL).
+ *
+ * ⚠️ This URL ships in the client bundle and is publicly visible. Use an
+ * endpoint that is safe to expose — one that only accepts submissions and
+ * carries no account secret. Never put an API key here.
+ */
+const LEAD_ENDPOINT = process.env.NEXT_PUBLIC_LEAD_ENDPOINT;
+
 const FIELD_ORDER = ["fullName", "email", "phone", "businessName"] as const;
 type FieldName = (typeof FIELD_ORDER)[number];
 
@@ -37,19 +48,40 @@ export function LeadForm() {
       return;
     }
 
+    const { website, ...lead } = parsed.data;
+
+    // Honeypot tripped. Show the success state so the bot learns nothing, and
+    // never forward the submission.
+    if (website) {
+      setStatus("success");
+      return;
+    }
+
     setErrors({});
     setStatus("submitting");
 
+    if (!LEAD_ENDPOINT) {
+      // Misconfiguration, not a visitor problem — say so rather than pretending
+      // the lead was captured.
+      console.error("[lead] NEXT_PUBLIC_LEAD_ENDPOINT is not set; submission was not sent.");
+      setFormError(qualify.form.errorGeneric);
+      setStatus("error");
+      return;
+    }
+
     try {
-      const res = await fetch("/api/lead", {
+      const res = await fetch(LEAD_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          ...lead,
+          source: "landing-page",
+          submittedAt: new Date().toISOString(),
+        }),
       });
 
       if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as { message?: string } | null;
-        setFormError(body?.message ?? qualify.form.errorGeneric);
+        setFormError(qualify.form.errorGeneric);
         setStatus("error");
         return;
       }

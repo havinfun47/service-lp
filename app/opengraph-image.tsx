@@ -9,6 +9,9 @@ import { BRAND, meta } from "@/content/copy";
  * /public/images/og.png, delete this file, and set `openGraph.images` in
  * app/layout.tsx.
  */
+/** Required by `output: "export"` — the card is rendered once at build time. */
+export const dynamic = "force-static";
+
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = meta.ogImageAlt;
