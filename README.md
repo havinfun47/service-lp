@@ -8,17 +8,17 @@ Next.js 16 (App Router, static export) · TypeScript · Tailwind CSS v4 · Frame
 
 ---
 
-## ⚠️ Three things before this is really live
+## Deployment
 
-### 1. Turn on the GitHub Actions deploy — *required, one-time*
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds the static export and publishes it to Pages on every push to `main`. It is live and verified.
 
-The repo now ships a workflow at [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) that builds the site and publishes it. It will not take effect until Pages is switched off Jekyll:
+Before this workflow existed, Pages was running its default Jekyll pipeline, which rendered `README.md` and `PRD_Landing_Page.md` as plain markdown pages — that is why the URL used to show the PRD. `actions/deploy-pages` switched the Pages source to GitHub Actions on its first successful run, so no manual settings change was needed.
 
-> **Settings → Pages → Build and deployment → Source → "GitHub Actions"**
+---
 
-Until that is flipped, Pages keeps running its default Jekyll pipeline, which renders `README.md` and `PRD_Landing_Page.md` as plain markdown pages instead of serving the app. That is exactly why the URL showed the PRD.
+## ⚠️ Two things before this is really live
 
-### 2. Set the lead endpoint — *the form does not work without it*
+### 1. Set the lead endpoint — *the form does not work without it*
 
 This is a **static** build with no server, so the browser posts leads directly to a third-party endpoint. Set it as a repository **variable** (not a secret — see below):
 
@@ -29,7 +29,7 @@ With it unset, the form validates normally but shows an error on submit and logs
 
 > ⚠️ **This URL is public.** Anything prefixed `NEXT_PUBLIC_` is baked into the JavaScript bundle and readable by anyone. Use an endpoint that only *accepts* submissions and carries no account secret. Never put an API key there. This is the security cost of static hosting, and it is the one PRD §8 requirement this deployment target cannot meet — see [Deployment trade-offs](#deployment-trade-offs).
 
-### 3. The copy is placeholder
+### 2. The copy is placeholder
 
 PRD §3 names **`Landing_Page_Copy_Drafting.md`** as the verbatim copy source of truth. That file was never supplied, so every string on the page is placeholder text written to the *structure* the PRD specifies (section order, item counts, named entities).
 
@@ -134,11 +134,11 @@ Colour, radius, and type-scale values are CSS variables in the `@theme` block at
 
 ## Verified
 
-Checked against the actual static export, served under the `/service-lp` prefix with gzip and cache headers to match GitHub Pages, driven with Playwright and Chrome:
+Measured against the **live site** at https://havinfun47.github.io/service-lp/, driven with Playwright and Chrome:
 
 | Check | Result |
 | --- | --- |
-| Lighthouse mobile — Performance | **93** |
+| Lighthouse mobile — Performance | **96** (LCP 2.7s, TBT 30ms, CLS 0) |
 | Lighthouse mobile — Accessibility | **100** |
 | Lighthouse mobile — Best Practices | **100** |
 | Lighthouse mobile — SEO | **100** |
@@ -149,9 +149,9 @@ Checked against the actual static export, served under the `/service-lp` prefix 
 | Hydration (accordion, menu, sticky CTA) | works |
 | Form: invalid, valid, honeypot, endpoint-unset | all correct |
 
-Measure performance on a compression-enabled server. A plain static server without gzip scores ~75 and blames "enable text compression" for ~881 KiB — an artifact of the test server, not the build. GitHub Pages compresses automatically.
+If you benchmark a local build, serve it with gzip enabled. A plain static server without compression scores ~75 and blames "enable text compression" for ~881 KiB — an artifact of the test server, not the build. GitHub Pages compresses automatically.
 
-Remaining headroom: LCP is 3.2 s on the simulated mobile throttle, dominated by first-load JS from Framer Motion (PRD §4 mandates it). The cheapest win is swapping the scroll reveals for IntersectionObserver + CSS transitions and keeping Framer Motion only for the stat counters.
+Remaining headroom: LCP is 2.7 s on the simulated mobile throttle, dominated by first-load JS from Framer Motion (PRD §4 mandates it). The cheapest win is swapping the scroll reveals for IntersectionObserver + CSS transitions and keeping Framer Motion only for the stat counters.
 
 ### Accessibility
 
