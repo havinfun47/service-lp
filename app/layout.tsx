@@ -1,21 +1,34 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Inter, Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import { META_PIXEL_ID } from "@/lib/analytics";
 import { meta } from "@/content/copy";
 import "./globals.css";
 
-/* Self-hosted at build time by next/font (PRD §4, §11) — no runtime request to
-   Google, no layout shift. Manrope is the bold display face, Inter the body. */
-const display = Manrope({
-  subsets: ["latin"],
-  weight: ["700", "800"],
+/*
+  Fonts are vendored into app/fonts/ and loaded with next/font/local (PRD §4:
+  self-hosted via next/font). Deliberately NOT next/font/google — that resolves
+  Google Fonts URLs at build time from metadata bundled with Next, and the
+  Manrope entries currently 404 against fonts.gstatic.com, which fails any
+  clean build (CI included). Vendoring removes the network from the build
+  entirely and makes it reproducible.
+
+  Both files are the latin subset of the upstream variable font, so one file
+  covers the whole weight range. Licensed under the SIL Open Font License —
+  see app/fonts/OFL.txt.
+*/
+const display = localFont({
+  src: "./fonts/manrope-latin-var.woff2",
+  weight: "400 800",
+  style: "normal",
   variable: "--font-display-face",
   display: "swap",
 });
 
-const body = Inter({
-  subsets: ["latin"],
+const body = localFont({
+  src: "./fonts/inter-latin-var.woff2",
+  weight: "400 700",
+  style: "normal",
   variable: "--font-body-face",
   display: "swap",
 });
