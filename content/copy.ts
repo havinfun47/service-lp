@@ -379,7 +379,11 @@ export const meta = {
     "We build the ads, landing page, and booking system that fill Canadian drafting firms' calendars with qualified consults on autopilot. 3× return guarantee, no lock-in contracts.",
   /** Public URL of the deployed site, used for canonical/OG tags and the
    *  sitemap. Includes the /service-lp subpath because GitHub Pages serves
-   *  project sites from a repo-named directory. */
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://havinfun47.github.io/service-lp",
+   *  project sites from a repo-named directory.
+   *
+   *  `||`, not `??`: GitHub Actions substitutes an EMPTY STRING for a variable
+   *  that is not defined, and `??` would let that through to `new URL("")`,
+   *  which throws and fails the build. */
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://havinfun47.github.io/service-lp",
   ogImageAlt: `${BRAND} — booked projects for Canadian drafting firms`,
 } as const;

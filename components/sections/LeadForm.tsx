@@ -19,7 +19,7 @@ type Status = "idle" | "submitting" | "success" | "error";
  * endpoint that is safe to expose — one that only accepts submissions and
  * carries no account secret. Never put an API key here.
  */
-const LEAD_ENDPOINT = process.env.NEXT_PUBLIC_LEAD_ENDPOINT;
+const LEAD_ENDPOINT = process.env.NEXT_PUBLIC_LEAD_ENDPOINT || undefined;
 
 const FIELD_ORDER = ["fullName", "email", "phone", "businessName"] as const;
 type FieldName = (typeof FIELD_ORDER)[number];
