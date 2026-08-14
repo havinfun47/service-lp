@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens (PRD §6)
+   One accent + neutrals. All values are WCAG-AA verified against the surfaces
+   they are actually used on:
+     accent   #2563EB on white text .... 5.17:1  (primary CTA)
+     accentUp #6E9BFF on ink ........... 7.29:1  (accent text on dark)
+     muted    #9CA3AF on ink ........... 7.74:1  (body text on dark)
+     mutedOn  #4B5563 on white ......... 7.56:1  (body text on light)
+   Retune here and the whole page follows.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-ink: #0b0b0f;
+  --color-ink-soft: #121218;
+  --color-ink-card: #16161d;
+  --color-line: #26262f;
+
+  --color-surface: #ffffff;
+  --color-surface-soft: #f5f6f8;
+  --color-surface-line: #e4e6ea;
+
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4fd8;
+  --color-accent-up: #6e9bff;
+  --color-accent-fg: #ffffff;
+
+  --color-muted: #9ca3af;
+  --color-muted-on-light: #4b5563;
+
+  --color-affirm: #34d399;
+  --color-deny: #9ca3af;
+  --color-alert: #f87171;
+
+  --radius-card: 16px;
+
+  --font-display: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
+
+  /* Fluid type scale (PRD §6) */
+  --text-hero: clamp(2.125rem, 1.15rem + 4.4vw, 4rem); /* 34 -> 64px */
+  --text-section: clamp(1.75rem, 1.15rem + 2.6vw, 2.75rem); /* 28 -> 44px */
+  --text-lede: clamp(1rem, 0.94rem + 0.28vw, 1.125rem); /* 16 -> 18px */
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Sticky nav is 72px tall; keep anchor targets clear of it. */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-surface);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible focus everywhere (PRD §10) */
+  :focus-visible {
+    outline: 3px solid var(--color-accent-up);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+  }
+}
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  .section-y {
+    padding-block: 3.5rem; /* 56px mobile */
+  }
+
+  @media (min-width: 768px) {
+    .section-y {
+      padding-block: 6.5rem; /* ~104px desktop */
+    }
+  }
+}
+
+/* Seamless marquee for the proof ticker (PRD §9).
+   Track holds the item list twice; -50% lands exactly on the copy. */
+@keyframes ticker-track {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  animation: ticker-track 32s linear infinite;
+  will-change: transform;
+}
+
+.ticker-viewport:hover .ticker-track,
+.ticker-viewport:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+
+/* PRD §10 — honour reduced motion globally. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .ticker-track {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
